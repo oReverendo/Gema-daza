@@ -448,3 +448,33 @@ a, button, summary, label, select, input, textarea, [role="button"] { touch-acti
   .banner .seal { top: auto; bottom: -3.75rem; right: max(var(--gutter), calc((100vw - var(--wrap)) / 2)); width: 7.5rem; height: 7.5rem; }
 }
 @media (prefers-reduced-motion: reduce) { .banner__bg img { transition: opacity 250ms ease; transform: none; } @starting-style { .banner__bg img { transform: none; } } }
+
+/* ---------- Retrato grande, sin marco (Sobre Gema) ---------- */
+.bigphoto { position: relative; margin: 0 auto; width: min(100%, 30rem); }
+.bigphoto::before { content: ""; position: absolute; inset: 0; border-radius: 1rem; box-shadow: 0 40px 70px -40px oklch(22% 0.07 20 / .6); pointer-events: none; }
+.bigphoto__img { position: relative; aspect-ratio: 960 / 1448; border-radius: 1rem; overflow: hidden; background: var(--parchment-deep); }
+.bigphoto__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+.bigphoto__empty { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: .5rem; text-align: center; padding: 1.5rem; color: var(--ink-soft); background: repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in oklab, var(--oro) 12%, transparent) 14px 15px); }
+.bigphoto__empty svg { width: 2.5rem; height: 2.5rem; color: var(--oro-deep); }
+.bigphoto__empty strong { font-family: var(--font-display); font-size: 1.3rem; font-weight: 500; color: var(--ink); }
+.bigphoto__empty small { font-size: .8rem; }
+@media (min-width: 56rem) {
+  .split:has(> .draw .bigphoto) { grid-template-columns: minmax(0, 30rem) minmax(0, 1fr); align-items: start; }
+  .split > :has(.bigphoto) { position: sticky; top: calc(var(--header-h) + 1.5rem); }
+}
+
+/* Aparición (rara vez: una vez por visita; solo con JS):
+   la foto se abre desde el centro (clip-path, ease-in-out) y se asienta (scale 1.06 → 1, ease-out largo);
+   la sombra llega al terminar de abrirse. */
+.js .bigphoto__img { clip-path: inset(0 50% 0 50% round 1rem); transition: clip-path 900ms var(--ease-in-out); }
+.js .draw[data-visible] .bigphoto__img { clip-path: inset(0 0 0 0 round 1rem); }
+.js .bigphoto__img img { transform: scale(1.06); transition: transform 1500ms var(--ease-out); }
+.js .draw[data-visible] .bigphoto__img img { transform: none; }
+.js .bigphoto::before { opacity: 0; transition: opacity 600ms var(--ease-out) 700ms; }
+.js .draw[data-visible] .bigphoto::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .js .bigphoto__img { clip-path: none; opacity: 0; transition: opacity 250ms ease; }
+  .js .draw[data-visible] .bigphoto__img { opacity: 1; }
+  .js .bigphoto__img img { transform: none; transition: none; }
+  .js .bigphoto::before { opacity: 1; transition: none; }
+}
