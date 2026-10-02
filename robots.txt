@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://extranjeriaelejido.es/sitemap.xml
