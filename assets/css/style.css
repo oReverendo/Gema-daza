@@ -478,3 +478,20 @@ a, button, summary, label, select, input, textarea, [role="button"] { touch-acti
   .js .bigphoto__img img { transform: none; transition: none; }
   .js .bigphoto::before { opacity: 1; transition: none; }
 }
+
+/* ---------- SEO / contenido: tarjetas relacionadas y firma ---------- */
+.svc-list--compact { gap: .75rem; }
+.svc-list--compact .svc { padding: 1.25rem 1.5rem; }
+.svc h3 { font-size: 1.3rem; margin-bottom: .2rem; }
+.author { display: flex; gap: 1rem; align-items: center; border-top: 1px solid var(--line); padding-top: 1.75rem; }
+.author__img { height: 2.75rem; width: auto; flex: none; }
+.author p { margin: 0; max-width: none; }
+.author__name { font-family: var(--font-display); font-size: 1.2rem; color: var(--ink); }
+.author__name a { text-decoration: none; }
+.author__role { font-size: .9rem; }
+.author__date { font-size: .8rem; color: var(--ink-soft); }
+.article a.svc { font-weight: 400; text-decoration: none; }
+.article a.svc h3 { color: var(--granate); }
+
+/* Barra móvil con un único botón (solo WhatsApp) */
+@media (max-width: 52rem) { .mobile-bar--single { grid-template-columns: 1fr; } }
