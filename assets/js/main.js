@@ -27,23 +27,21 @@
     nav.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
   }
 
-  /* Aparición al hacer scroll (una sola vez) */
-  var items = document.querySelectorAll('.reveal, .draw');
-  if (items.length) {
-    if (!('IntersectionObserver' in window)) {
-      items.forEach(function (el) { el.setAttribute('data-visible', ''); });
-    } else {
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.setAttribute('data-visible', '');
-            io.unobserve(entry.target);
-          }
-        });
-      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-      items.forEach(function (el) { io.observe(el); });
-    }
-  }
+  /* Aparición al hacer scroll (una sola vez).
+     .reveal entra en cuanto asoma; .draw (coreografías largas) espera a verse un tercio, para que se vea entera */
+  var observe = function (selector, threshold) {
+    var els = document.querySelectorAll(selector);
+    if (!els.length) return;
+    if (!('IntersectionObserver' in window)) { els.forEach(function (el) { el.setAttribute('data-visible', ''); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.setAttribute('data-visible', ''); io.unobserve(entry.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: threshold });
+    els.forEach(function (el) { io.observe(el); });
+  };
+  observe('.reveal', 0.08);
+  observe('.draw', 0.3);
 
   /* Formulario de contacto: prepara el mensaje y abre WhatsApp (no se guarda nada) */
   var form = document.getElementById('contact-form');
