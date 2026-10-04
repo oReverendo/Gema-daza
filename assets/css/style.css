@@ -513,3 +513,23 @@ img { -webkit-user-drag: none; user-drag: none; -webkit-user-select: none; user-
 .foot-bottom a, .crumbs a, .quote cite a { display: inline-block; padding-block: .6rem; }
 .crumbs ol { align-items: center; row-gap: 0; }
 .site-footer ul a { display: inline-block; padding-block: .3rem; }
+
+/* ---------- Reseñas de Google en vivo ---------- */
+[hidden] { display: none !important; }
+.review--g { gap: 1rem; animation: review-in 600ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 90ms); }
+@keyframes review-in { from { opacity: 0; transform: translateY(10px); } }
+.review__head { display: flex; align-items: center; gap: .75rem; }
+.review__avatar { width: 2.75rem; height: 2.75rem; border-radius: 50%; object-fit: cover; flex: none; background: var(--granate-mist); }
+.review__avatar--ini { display: grid; place-items: center; font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--granate); }
+.review__who { display: grid; min-width: 0; text-decoration: none; color: inherit; }
+.review__name { font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.review__time { font-size: .85rem; color: var(--ink-soft); }
+.review--g blockquote { font-size: 1.12rem; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.review--g blockquote.is-open { display: block; }
+.review__more { align-self: flex-start; margin-top: auto; padding: .6rem 0; background: none; border: 0; font: inherit; font-size: .9rem; font-weight: 700; color: var(--granate); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.gcredit { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1.5rem; margin: 1.75rem 0 0; font-size: .9rem; color: var(--ink-soft); }
+@media (max-width: 51.99rem) {
+  .reviews--g { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 1rem; padding: 0 var(--gutter) .75rem; margin-inline: calc(var(--gutter) * -1); -webkit-overflow-scrolling: touch; }
+  .reviews--g .review { flex: 0 0 86%; scroll-snap-align: center; }
+}
+@media (prefers-reduced-motion: reduce) { .review--g { animation: none; } }

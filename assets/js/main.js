@@ -70,6 +70,76 @@
   });
   document.addEventListener('dragstart', function (e) { if (e.target && e.target.tagName === 'IMG') e.preventDefault(); });
 
+  /* Reseñas de Google (Places API, en vivo). Si algo falla, el bloque simplemente no aparece. */
+  var gsec = document.querySelector('[data-gplace]');
+  if (gsec && 'fetch' in window) {
+    var gDone = false;
+    var seguro = function (u) { return typeof u === 'string' && /^https:\/\//i.test(u); };
+    var mk = function (tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+    var STAR = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M10 1.5l2.6 5.5 6 .8-4.4 4.2 1.1 6L10 15l-5.3 3 1.1-6L1.4 7.8l6-.8z"/></svg>';
+    var estrellas = function (n, tam) {
+      var s = mk('span', 'stars'); s.setAttribute('role', 'img'); s.setAttribute('aria-label', n + ' de 5 estrellas');
+      var h = ''; for (var i = 0; i < 5; i++) h += (i < n ? STAR : STAR.replace('<svg ', '<svg style="opacity:.22" ')); s.innerHTML = h;
+      if (tam) { var sv = s.querySelectorAll('svg'); for (var k = 0; k < sv.length; k++) { sv[k].setAttribute('width', tam); sv[k].setAttribute('height', tam); } }
+      return s;
+    };
+    var render = function (d) {
+      var lista = (d.reviews || []).filter(function (r) { return r && r.text && r.text.text; }).slice(0, 5);
+      if (!lista.length) return;
+      var cont = gsec.querySelector('[data-greviews]');
+      lista.forEach(function (r, i) {
+        var au = r.authorAttribution || {};
+        var fig = mk('figure', 'review review--g'); fig.style.setProperty('--i', i);
+        var head = mk('div', 'review__head');
+        if (seguro(au.photoUri)) {
+          var im = document.createElement('img'); im.className = 'review__avatar'; im.alt = ''; im.width = 44; im.height = 44; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer'; im.src = au.photoUri; head.appendChild(im);
+        } else { head.appendChild(mk('span', 'review__avatar review__avatar--ini', (au.displayName || '?').charAt(0).toUpperCase())); }
+        var quien = seguro(au.uri) ? mk('a', 'review__who') : mk('span', 'review__who');
+        if (seguro(au.uri)) { quien.href = au.uri; quien.target = '_blank'; quien.rel = 'noopener nofollow'; }
+        quien.appendChild(mk('span', 'review__name', au.displayName || 'Usuario de Google'));
+        if (r.relativePublishTimeDescription) quien.appendChild(mk('span', 'review__time', r.relativePublishTimeDescription));
+        head.appendChild(quien); fig.appendChild(head);
+        fig.appendChild(estrellas(Math.max(1, Math.min(5, Math.round(r.rating || 5)))));
+        var bq = mk('blockquote', null, r.text.text); fig.appendChild(bq);
+        if (r.text.text.length > 210) {
+          var b = mk('button', 'review__more', 'Leer más'); b.type = 'button'; b.setAttribute('aria-expanded', 'false');
+          b.addEventListener('click', function () { var abierto = bq.classList.toggle('is-open'); b.textContent = abierto ? 'Leer menos' : 'Leer más'; b.setAttribute('aria-expanded', abierto ? 'true' : 'false'); });
+          fig.appendChild(b);
+        }
+        cont.appendChild(fig);
+      });
+      var sum = gsec.querySelector('[data-gsum]');
+      if (d.rating && d.userRatingCount) {
+        var nota = Number(d.rating); sum.appendChild(mk('strong', null, nota.toFixed(1).replace('.', ',')));
+        sum.appendChild(estrellas(Math.round(nota), 20));
+        sum.appendChild(mk('span', null, '· ' + Number(d.userRatingCount).toLocaleString('es-ES') + ' reseñas en Google'));
+      } else { sum.hidden = true; }
+      var enlace = gsec.querySelector('[data-glink]');
+      if (seguro(d.googleMapsUri)) { enlace.href = d.googleMapsUri; enlace.hidden = false; }
+      gsec.hidden = false;
+      var n = 0; [].forEach.call(document.querySelectorAll('.eyebrow[data-n]'), function (e) { if (e.closest('[hidden]')) return; n++; e.setAttribute('data-n', (n < 10 ? '0' : '') + n); });
+      var cerca = document.getElementById('t-cerca'), faq = document.getElementById('t-faq');
+      if (cerca) cerca.closest('section').classList.remove('section--tint');
+      if (faq) faq.closest('section').classList.add('section--tint');
+    };
+    var cargar = function () {
+      if (gDone) return; gDone = true;
+      var ctrl = 'AbortController' in window ? new AbortController() : null;
+      var t = ctrl ? setTimeout(function () { ctrl.abort(); }, 7000) : null;
+      fetch('https://places.googleapis.com/v1/places/' + encodeURIComponent(gsec.getAttribute('data-gplace')) + '?languageCode=es', {
+        headers: { 'X-Goog-Api-Key': gsec.getAttribute('data-gkey'), 'X-Goog-FieldMask': 'rating,userRatingCount,googleMapsUri,reviews' },
+        signal: ctrl ? ctrl.signal : undefined
+      }).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+        .then(function (d) { if (t) clearTimeout(t); render(d); })
+        .catch(function () { /* sin reseñas: el bloque sigue oculto */ });
+    };
+    var antes = gsec.previousElementSibling;
+    if ('IntersectionObserver' in window && antes) {
+      var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); cargar(); } }, { rootMargin: '0px 0px 900px 0px' });
+      io.observe(antes);
+    } else { window.addEventListener('load', cargar); }
+  }
+
   /* Año del pie */
   var y = document.querySelector('[data-year]');
   if (y) y.textContent = new Date().getFullYear();
