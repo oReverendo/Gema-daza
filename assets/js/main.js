@@ -62,6 +62,14 @@
     });
   }
 
+  /* Protección disuasoria de imágenes: sin menú contextual ni arrastre sobre las fotos */
+  document.addEventListener('contextmenu', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    var enBanner = t.closest('.banner') && !t.closest('a, button, input, select, textarea, h1, p, dt, dd');
+    if (enBanner || t.closest('img, .banner__bg, .bigphoto')) e.preventDefault();
+  });
+  document.addEventListener('dragstart', function (e) { if (e.target && e.target.tagName === 'IMG') e.preventDefault(); });
+
   /* Año del pie */
   var y = document.querySelector('[data-year]');
   if (y) y.textContent = new Date().getFullYear();
